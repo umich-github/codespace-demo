@@ -1,5 +1,5 @@
 class IndexController < ApplicationController
   def index
-    @message = "Hello, there!"
+    @messages = Message.all
   end
 end

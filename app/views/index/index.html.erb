@@ -1,3 +1,5 @@
 <div>
-  <p><%= @message %></p>
+  <% @messages.each do |message| %>
+    <p><%= message.body %></p>
+  <% end %>
 </div>
