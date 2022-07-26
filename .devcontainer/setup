@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Set up the local env's credentials keys from GH Secrets
+if [ ! -e config/credentials/development.key ]; then
+  echo -n $RAILS_DEV_KEY  > config/credentials/development.key
+  echo -n $RAILS_TEST_KEY > config/credentials/test.key
+fi
