@@ -1,0 +1,51 @@
+name: "unit test"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://postgres:wibble@127.0.0.1:5432/github-demo-test"
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_TEST_KEY }}
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          # This password is only Used in test/dev
+          POSTGRES_PASSWORD: wibble
+          POSTGRES_DB: github-demo-test
+        ports:
+          - 5432:5432
+        options: >-
+          --mount type=tmpfs,destination=/var/lib/postgresql/data
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 'lts/*'
+
+      - name: Build assets
+        run: bundle exec rails assets:precompile
+
+      - name: Create DB
+        run: bundle exec rails db:prepare
+
+      - name: Run minitest
+        run: bundle exec rails test
